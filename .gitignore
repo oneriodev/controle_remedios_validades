@@ -1,0 +1,45 @@
+# ===== Segredos (NUNCA versionar) =====
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ===== Dados reais de farmácia (LGPD / confidencialidade) =====
+# Planilhas e CSVs só entram se estiverem em dados_exemplo/ (fictícios)
+*.csv
+*.xlsx
+*.xls
+!dados_exemplo/*.csv
+!dados_exemplo/*.xlsx
+dados_reais/
+uploads/
+fotos/
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ===== Node / Expo (Fase 2) =====
+node_modules/
+.expo/
+dist/
+web-build/
+*.apk
+*.aab
+
+# ===== Docker / banco local =====
+pgdata/
+
+# ===== Editor e sistema =====
+.vscode/*
+!.vscode/settings.json
+.idea/
+.DS_Store
+*.log
