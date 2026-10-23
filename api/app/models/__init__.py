@@ -5,5 +5,8 @@ Todo model novo deve ser importado aqui; é assim que o Alembic
 """
 
 from app.models.base import Base
+from app.models.farmacia import Farmacia
+from app.models.lote_validade import LoteValidade
+from app.models.produto import Produto
 
-__all__ = ["Base"]
+__all__ = ["Base", "Farmacia", "LoteValidade", "Produto"]
