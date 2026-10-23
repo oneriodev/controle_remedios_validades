@@ -1,0 +1,7 @@
+ean;nome_medicamento;laboratorio;custo_unitario
+7890000000017;Losartana 50mg (fictício);Laboratório Exemplo;8,50
+7890000000018;Dígito verificador errado (fictício);Laboratório Exemplo;3,20
+ABC;EAN com letras (fictício);;1,00
+7890000000031;=HYPERLINK("http://exemplo.invalid");Farma Fictícia;6,75
+7890000000048;Custo negativo (fictício);;-5,00
+7890000000017;Losartana repetida (fictício);;8,50
