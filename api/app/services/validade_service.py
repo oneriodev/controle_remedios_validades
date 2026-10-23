@@ -33,7 +33,10 @@ _CAMPOS_COMPARADOS = (
 
 
 async def registrar_coleta(
-    session: AsyncSession, farmacia_id: uuid.UUID, dados: LoteValidadeCriar
+    session: AsyncSession,
+    farmacia_id: uuid.UUID,
+    usuario_id: uuid.UUID,
+    dados: LoteValidadeCriar,
 ) -> tuple[LoteValidade, bool]:
     """Grava a coleta de forma idempotente. Retorna (coleta, foi_criada_agora)."""
     produto = await produto_repository.buscar_por_ean(session, farmacia_id, dados.ean_produto)
@@ -48,6 +51,7 @@ async def registrar_coleta(
         "data_validade": dados.validade,
         "quantidade_prateleira": dados.quantidade_prateleira,
         "data_coleta": dados.data_coleta,
+        "coletado_por_id": usuario_id,
     }
 
     criada = await lote_validade_repository.inserir_se_novo(session, valores)

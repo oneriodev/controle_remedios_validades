@@ -13,6 +13,8 @@ from app.repositories import produto_repository
 from app.schemas.produto import ProdutoLeitura, ResultadoImportacao
 from app.services import produto_service
 from app.services.importacao_produtos import ArquivoInvalido
+from app.core.deps import exigir_gerente, obter_farmacia_id
+from app.models import Usuario
 
 logger = logging.getLogger(__name__)
 
@@ -44,19 +46,21 @@ async def _ler_com_limite(arquivo: UploadFile) -> bytes:
         400: {"description": "Arquivo recusado (tipo, estrutura ou colunas)"},
         413: {"description": "Arquivo maior que 2 MB"},
         422: {"description": "Linhas com erro; nada foi importado"},
+        401: {"description": "Não autenticado"},
+        403: {"description": "Apenas o gerente pode importar"},
     },
 )
+
 async def importar_cadastro(
     arquivo: Annotated[UploadFile, File(description="Planilha .csv ou .xlsx (máx. 2 MB)")],
-    farmacia_id: Annotated[uuid.UUID, Depends(obter_farmacia_id)],
+    gerente: Annotated[Usuario, Depends(exigir_gerente)],
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> ResultadoImportacao:
-    # TODO Etapa 5: permitir somente ao perfil gerente
     conteudo = await _ler_com_limite(arquivo)
 
     try:
         resultado = await produto_service.importar_produtos(
-            session, farmacia_id, conteudo, arquivo.filename or ""
+            session, gerente.farmacia_id, conteudo, arquivo.filename or ""
         )
     except ArquivoInvalido as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
@@ -70,16 +74,16 @@ async def importar_cadastro(
             },
         )
 
-    # Auditoria: quem e quanto, nunca o conteúdo (custos são confidenciais)
+    # Auditoria: quem, onde e quanto; nunca o conteúdo (custos são confidenciais)
     logger.info(
-        "Importação de produtos: farmacia=%s linhas=%d inseridos=%d atualizados=%d",
-        farmacia_id,
+        "Importação de produtos: usuario=%s farmacia=%s linhas=%d inseridos=%d atualizados=%d",
+        gerente.id,
+        gerente.farmacia_id,
         resultado.total_linhas,
         resultado.inseridos,
         resultado.atualizados,
     )
     return resultado
-
 
 @router.get(
     "/{ean}",

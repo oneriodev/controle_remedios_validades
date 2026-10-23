@@ -26,6 +26,12 @@ class LoteValidade(Base):
             ["produtos.farmacia_id", "produtos.ean"],
             ondelete="RESTRICT",  # nunca apagar histórico de coletas em cascata
         ),
+        # Quem coletou: precisa ser um usuário DA MESMA farmácia
+        ForeignKeyConstraint(
+            ["farmacia_id", "coletado_por_id"],
+            ["usuarios.farmacia_id", "usuarios.id"],
+            ondelete="RESTRICT",
+        ),
         CheckConstraint("quantidade_prateleira > 0", name="quantidade_positiva"),
         # Regra de negócio: a validade é sempre o último dia do mês impresso
         CheckConstraint(
@@ -47,6 +53,8 @@ class LoteValidade(Base):
 
     farmacia_id: Mapped[uuid.UUID] = mapped_column()
     ean_produto: Mapped[str] = mapped_column(String(14))
+    # Rastreabilidade: quem registrou a coleta (vem do token, nunca do app)
+    coletado_por_id: Mapped[uuid.UUID] = mapped_column()
 
     lote: Mapped[str] = mapped_column(String(50))
     data_validade: Mapped[date] = mapped_column(Date)

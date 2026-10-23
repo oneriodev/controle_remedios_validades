@@ -6,6 +6,7 @@ from pathlib import Path
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
+from pydantic import SecretStr, field_validator
 
 # config.py está em api/app/core/ → subindo 3 níveis chegamos à raiz do projeto
 RAIZ_PROJETO = Path(__file__).resolve().parents[3]
@@ -32,6 +33,17 @@ class Settings(BaseSettings):
 
     # Fuso usado para calcular "hoje" nas faixas de vencimento
     fuso_horario: str = "America/Cuiaba"
+
+    @field_validator("jwt_secret_key")
+    @classmethod
+    def exigir_chave_forte(cls, valor: SecretStr) -> SecretStr:
+        # Chave curta = tokens forjáveis por força bruta. Melhor nem iniciar.
+        if len(valor.get_secret_value()) < 32:
+            raise ValueError(
+                "JWT_SECRET_KEY muito curta. Gere uma com: "
+                'python3 -c "import secrets; print(secrets.token_urlsafe(64))"'
+            )
+        return valor
 
     @property
     def database_url(self) -> URL:

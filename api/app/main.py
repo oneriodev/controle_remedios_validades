@@ -3,6 +3,8 @@
 from fastapi import FastAPI
 
 from app.routers import health, produtos, validades
+from app.routers import auth, health, produtos, validades
+
 
 app = FastAPI(
     title="API de Controle de Validades Farmacêuticas",

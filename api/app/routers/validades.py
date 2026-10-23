@@ -10,6 +10,8 @@ from app.core.database import get_session
 from app.core.deps import obter_farmacia_id
 from app.schemas.lote_validade import LoteValidadeCriar, LoteValidadeLeitura
 from app.services import validade_service
+from app.core.deps import obter_usuario_atual
+from app.models import Usuario
 
 router = APIRouter(prefix="/api/validades", tags=["Validades"])
 
@@ -27,15 +29,12 @@ router = APIRouter(prefix="/api/validades", tags=["Validades"])
 async def registrar_coleta(
     dados: LoteValidadeCriar,
     response: Response,
-    farmacia_id: Annotated[uuid.UUID, Depends(obter_farmacia_id)],
+    usuario: Annotated[Usuario, Depends(obter_usuario_atual)],
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> LoteValidadeLeitura:
     try:
-        coleta, criada = await validade_service.registrar_coleta(session, farmacia_id, dados)
-    except validade_service.ProdutoNaoEncontrado:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Produto não cadastrado nesta farmácia",
+        coleta, criada = await validade_service.registrar_coleta(
+            session, usuario.farmacia_id, usuario.id, dados
         )
     except validade_service.ConflitoIdempotencia:
         raise HTTPException(
