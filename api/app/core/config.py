@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     jwt_access_token_minutes: int = 15
     jwt_refresh_token_days: int = 7
 
+    # Fuso usado para calcular "hoje" nas faixas de vencimento
+    fuso_horario: str = "America/Cuiaba"
+
     @property
     def database_url(self) -> URL:
         """URL de conexão assíncrona (driver psycopg 3)."""
