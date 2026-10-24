@@ -39,7 +39,9 @@ async def registrar_coleta(
     dados: LoteValidadeCriar,
 ) -> tuple[LoteValidade, bool]:
     """Grava a coleta de forma idempotente. Retorna (coleta, foi_criada_agora)."""
-    produto = await produto_repository.buscar_por_ean(session, farmacia_id, dados.ean_produto)
+    produto = await produto_repository.buscar_por_ean(
+        session, farmacia_id, dados.ean_produto
+    )
     if produto is None:
         raise ProdutoNaoEncontrado
 
@@ -63,7 +65,9 @@ async def registrar_coleta(
 
     if not criada:
         # Reenvio: só é aceito se for exatamente a mesma coleta
-        mesma = all(getattr(coleta, campo) == valores[campo] for campo in _CAMPOS_COMPARADOS)
+        mesma = all(
+            getattr(coleta, campo) == valores[campo] for campo in _CAMPOS_COMPARADOS
+        )
         if not mesma:
             raise ConflitoIdempotencia
 

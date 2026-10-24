@@ -3,10 +3,9 @@
 from functools import lru_cache
 from pathlib import Path
 
-from pydantic import SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
-from pydantic import SecretStr, field_validator
 
 # config.py está em api/app/core/ → subindo 3 níveis chegamos à raiz do projeto
 RAIZ_PROJETO = Path(__file__).resolve().parents[3]

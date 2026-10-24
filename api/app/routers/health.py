@@ -1,6 +1,7 @@
 """Rota de verificação de saúde da API e do banco."""
 
 import logging
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import text
@@ -14,7 +15,9 @@ router = APIRouter(tags=["Saúde"])
 
 
 @router.get("/health")
-async def health(session: AsyncSession = Depends(get_session)) -> dict[str, str]:
+async def health(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, str]:
     try:
         await session.execute(text("SELECT 1"))
     except Exception:

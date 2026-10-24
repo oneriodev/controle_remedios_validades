@@ -22,7 +22,11 @@ ValidadeMMAAAA = Annotated[
     date,
     BeforeValidator(converter_validade_mm_aaaa),
     WithJsonSchema(
-        {"type": "string", "pattern": "^(0[1-9]|1[0-2])/[0-9]{4}$", "examples": ["03/2027"]}
+        {
+            "type": "string",
+            "pattern": "^(0[1-9]|1[0-2])/[0-9]{4}$",
+            "examples": ["03/2027"],
+        }
     ),
 ]
 

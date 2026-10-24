@@ -22,7 +22,9 @@ async def buscar_ativo_por_email(session: AsyncSession, email: str) -> Usuario |
     return resultado.scalar_one_or_none()
 
 
-async def buscar_ativo_por_id(session: AsyncSession, usuario_id: uuid.UUID) -> Usuario | None:
+async def buscar_ativo_por_id(
+    session: AsyncSession, usuario_id: uuid.UUID
+) -> Usuario | None:
     resultado = await session.execute(_ativos().where(Usuario.id == usuario_id))
     return resultado.scalar_one_or_none()
 

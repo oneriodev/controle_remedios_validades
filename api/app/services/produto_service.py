@@ -22,12 +22,16 @@ async def importar_produtos(
     session: AsyncSession, farmacia_id: uuid.UUID, conteudo: bytes, nome_arquivo: str
 ) -> ResultadoImportacao:
     # Ler planilha é trabalho de CPU: roda numa thread para não travar a API
-    produtos, erros = await to_thread.run_sync(processar_arquivo, conteudo, nome_arquivo)
+    produtos, erros = await to_thread.run_sync(
+        processar_arquivo, conteudo, nome_arquivo
+    )
     if erros:
         raise ErrosNaImportacao(erros)  # tudo ou nada
 
     eans = [p.ean for p in produtos]
-    ja_existentes = await produto_repository.contar_existentes(session, farmacia_id, eans)
+    ja_existentes = await produto_repository.contar_existentes(
+        session, farmacia_id, eans
+    )
 
     registros = [{"farmacia_id": farmacia_id, **p.model_dump()} for p in produtos]
     await produto_repository.inserir_ou_atualizar(session, registros)

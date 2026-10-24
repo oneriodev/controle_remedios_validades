@@ -41,9 +41,7 @@ class LoteValidade(Base):
         ),
         # Ciclo de vida do lote. A faixa de risco (vencido, 30/60/90 dias)
         # NÃO é gravada: é calculada na consulta a partir da data de hoje.
-        CheckConstraint(
-            "situacao IN ('ativo', 'descartado')", name="situacao_valida"
-        ),
+        CheckConstraint("situacao IN ('ativo', 'descartado')", name="situacao_valida"),
         # Acelera a consulta do painel: "o que vence nesta farmácia em breve?"
         Index("ix_lotes_validade_farmacia_validade", "farmacia_id", "data_validade"),
     )

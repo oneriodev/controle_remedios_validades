@@ -75,7 +75,9 @@ def limpar_texto(valor: object, campo: str, tamanho_maximo: int) -> str | None:
     if not texto:
         return None
     if texto.startswith(PREFIXOS_DE_FORMULA):
-        raise ValueError(f"{campo} não pode começar com =, +, - ou @ (proteção contra fórmulas)")
+        raise ValueError(
+            f"{campo} não pode começar com =, +, - ou @ (proteção contra fórmulas)"
+        )
     if len(texto) > tamanho_maximo:
         raise ValueError(f"{campo} pode ter no máximo {tamanho_maximo} caracteres")
     return texto

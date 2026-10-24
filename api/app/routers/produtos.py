@@ -8,13 +8,12 @@ from fastapi import APIRouter, Depends, File, HTTPException, Path, UploadFile, s
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
-from app.core.deps import obter_farmacia_id
+from app.core.deps import exigir_gerente, obter_farmacia_id
+from app.models import Usuario
 from app.repositories import produto_repository
 from app.schemas.produto import ProdutoLeitura, ResultadoImportacao
 from app.services import produto_service
 from app.services.importacao_produtos import ArquivoInvalido
-from app.core.deps import exigir_gerente, obter_farmacia_id
-from app.models import Usuario
 
 logger = logging.getLogger(__name__)
 
@@ -44,15 +43,16 @@ async def _ler_com_limite(arquivo: UploadFile) -> bytes:
     response_model=ResultadoImportacao,
     responses={
         400: {"description": "Arquivo recusado (tipo, estrutura ou colunas)"},
-        413: {"description": "Arquivo maior que 2 MB"},
-        422: {"description": "Linhas com erro; nada foi importado"},
         401: {"description": "Não autenticado"},
         403: {"description": "Apenas o gerente pode importar"},
+        413: {"description": "Arquivo maior que 2 MB"},
+        422: {"description": "Linhas com erro; nada foi importado"},
     },
 )
-
 async def importar_cadastro(
-    arquivo: Annotated[UploadFile, File(description="Planilha .csv ou .xlsx (máx. 2 MB)")],
+    arquivo: Annotated[
+        UploadFile, File(description="Planilha .csv ou .xlsx (máx. 2 MB)")
+    ],
     gerente: Annotated[Usuario, Depends(exigir_gerente)],
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> ResultadoImportacao:
@@ -85,10 +85,14 @@ async def importar_cadastro(
     )
     return resultado
 
+
 @router.get(
     "/{ean}",
     response_model=ProdutoLeitura,
-    responses={404: {"description": "Produto não cadastrado nesta farmácia"}},
+    responses={
+        401: {"description": "Não autenticado"},
+        404: {"description": "Produto não cadastrado nesta farmácia"},
+    },
 )
 async def consultar_por_ean(
     ean: Annotated[str, Path(pattern=r"^[0-9]{8,14}$")],

@@ -38,7 +38,9 @@ async def login(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> TokenResposta:
     # Pelo padrão OAuth2 o campo se chama "username"; aqui ele recebe o e-mail
-    usuario = await auth_service.autenticar(session, formulario.username, formulario.password)
+    usuario = await auth_service.autenticar(
+        session, formulario.username, formulario.password
+    )
     if usuario is None:
         logger.warning("Falha de login: %s", _mascarar_email(formulario.username))
         raise _CREDENCIAIS_INVALIDAS

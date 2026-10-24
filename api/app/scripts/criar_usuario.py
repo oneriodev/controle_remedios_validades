@@ -56,7 +56,10 @@ async def _criar(args: argparse.Namespace) -> None:
 
     try:
         async with SessionLocal() as session:
-            if await farmacia_repository.buscar_ativa(session, args.farmacia_id) is None:
+            if (
+                await farmacia_repository.buscar_ativa(session, args.farmacia_id)
+                is None
+            ):
                 _falhar("farmácia não encontrada ou inativa")
             if await usuario_repository.existe_email(session, email):
                 _falhar("já existe um usuário com este e-mail")

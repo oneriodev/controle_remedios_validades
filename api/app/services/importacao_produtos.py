@@ -69,7 +69,9 @@ def _ler_csv(conteudo: bytes) -> list[list[object]]:
         except UnicodeDecodeError:
             continue
     else:
-        raise ArquivoInvalido("Não foi possível ler o texto do CSV (codificação desconhecida)")
+        raise ArquivoInvalido(
+            "Não foi possível ler o texto do CSV (codificação desconhecida)"
+        )
 
     primeira_linha = texto.split("\n", 1)[0]
     separador = ";" if primeira_linha.count(";") >= primeira_linha.count(",") else ","
@@ -79,7 +81,9 @@ def _ler_csv(conteudo: bytes) -> list[list[object]]:
     for linha in leitor:
         tabela.append(list(linha))
         if len(tabela) > LIMITE_LINHAS + 1:  # +1 pelo cabeçalho
-            raise ArquivoInvalido(f"O arquivo passa do limite de {LIMITE_LINHAS} linhas")
+            raise ArquivoInvalido(
+                f"O arquivo passa do limite de {LIMITE_LINHAS} linhas"
+            )
     return tabela
 
 
@@ -98,16 +102,19 @@ def _ler_xlsx(conteudo: bytes) -> list[list[object]]:
 
     try:
         # data_only=True: lê os VALORES das células, nunca as fórmulas
-        livro = openpyxl.load_workbook(io.BytesIO(conteudo), read_only=True, data_only=True)
-    except Exception:
+        livro = openpyxl.load_workbook(
+            io.BytesIO(conteudo), read_only=True, data_only=True
+        )
+    except Exception:  # noqa: BLE001 - arquivo hostil pode lançar qualquer erro
         raise ArquivoInvalido("Não foi possível abrir a planilha .xlsx") from None
-
     try:
         tabela: list[list[object]] = []
         for linha in livro.worksheets[0].iter_rows(values_only=True):
             tabela.append(list(linha))
             if len(tabela) > LIMITE_LINHAS + 1:
-                raise ArquivoInvalido(f"A planilha passa do limite de {LIMITE_LINHAS} linhas")
+                raise ArquivoInvalido(
+                    f"A planilha passa do limite de {LIMITE_LINHAS} linhas"
+                )
         return tabela
     finally:
         livro.close()
@@ -134,13 +141,17 @@ def _montar_linhas(tabela: list[list[object]]) -> list[LinhaBruta]:
         )
 
     # Só as colunas que usamos; as demais (comuns em exportações de ERP) são ignoradas
-    posicoes = {nome: cabecalho.index(nome) for nome in COLUNAS_ACEITAS if nome in cabecalho}
+    posicoes = {
+        nome: cabecalho.index(nome) for nome in COLUNAS_ACEITAS if nome in cabecalho
+    }
 
     linhas: list[LinhaBruta] = []
     for numero, linha in enumerate(tabela[1:], start=2):  # linha 1 = cabeçalho
         if all(c is None or str(c).strip() == "" for c in linha):
             continue  # pula linhas em branco
-        valores = {nome: (linha[i] if i < len(linha) else None) for nome, i in posicoes.items()}
+        valores = {
+            nome: (linha[i] if i < len(linha) else None) for nome, i in posicoes.items()
+        }
         linhas.append(LinhaBruta(numero=numero, valores=valores))
 
     if not linhas:

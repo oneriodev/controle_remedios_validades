@@ -25,8 +25,9 @@ def converter_validade_mm_aaaa(valor: object) -> date:
     Ex.: '02/2028' -> 2028-02-29 (ano bissexto).
     """
     if not isinstance(valor, str):
-        raise ValueError("A validade deve ser um texto no formato MM/AAAA")
-
+        # TypeError viraria erro 500: o Pydantic só converte ValueError em 422
+        raise ValueError("A validade deve ser um texto no formato MM/AAAA")  # noqa: TRY004
+    
     encontrado = _PADRAO_MM_AAAA.fullmatch(valor.strip())
     if encontrado is None:
         raise ValueError("Validade deve estar no formato MM/AAAA, ex.: 03/2027")

@@ -23,9 +23,13 @@ TAMANHO_MAXIMO_SENHA = 128  # sem limite, uma "senha" de MBs vira ataque ao argo
 def validar_politica_senha(senha: str, email: str) -> None:
     """Lança ValueError com uma mensagem clara se a senha for fraca."""
     if len(senha) < TAMANHO_MINIMO_SENHA:
-        raise ValueError(f"A senha precisa ter pelo menos {TAMANHO_MINIMO_SENHA} caracteres")
+        raise ValueError(
+            f"A senha precisa ter pelo menos {TAMANHO_MINIMO_SENHA} caracteres"
+        )
     if len(senha) > TAMANHO_MAXIMO_SENHA:
-        raise ValueError(f"A senha pode ter no máximo {TAMANHO_MAXIMO_SENHA} caracteres")
+        raise ValueError(
+            f"A senha pode ter no máximo {TAMANHO_MAXIMO_SENHA} caracteres"
+        )
     if senha.lower() == email.lower() or senha.lower() == email.split("@")[0].lower():
         raise ValueError("A senha não pode ser igual ao e-mail")
 

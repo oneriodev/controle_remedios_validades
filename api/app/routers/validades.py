@@ -1,17 +1,15 @@
 """Rotas de coleta de lote/validade."""
 
-import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
-from app.core.deps import obter_farmacia_id
-from app.schemas.lote_validade import LoteValidadeCriar, LoteValidadeLeitura
-from app.services import validade_service
 from app.core.deps import obter_usuario_atual
 from app.models import Usuario
+from app.schemas.lote_validade import LoteValidadeCriar, LoteValidadeLeitura
+from app.services import validade_service
 
 router = APIRouter(prefix="/api/validades", tags=["Validades"])
 
@@ -22,6 +20,7 @@ router = APIRouter(prefix="/api/validades", tags=["Validades"])
     status_code=status.HTTP_201_CREATED,
     responses={
         200: {"description": "Reenvio da mesma coleta (nada foi duplicado)"},
+        401: {"description": "Não autenticado"},
         404: {"description": "Produto não cadastrado nesta farmácia"},
         409: {"description": "Este id de coleta já foi usado com dados diferentes"},
     },
@@ -35,6 +34,11 @@ async def registrar_coleta(
     try:
         coleta, criada = await validade_service.registrar_coleta(
             session, usuario.farmacia_id, usuario.id, dados
+        )
+    except validade_service.ProdutoNaoEncontrado:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Produto não cadastrado nesta farmácia",
         )
     except validade_service.ConflitoIdempotencia:
         raise HTTPException(

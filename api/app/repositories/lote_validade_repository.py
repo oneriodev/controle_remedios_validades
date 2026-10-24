@@ -25,5 +25,7 @@ async def inserir_se_novo(session: AsyncSession, valores: dict[str, Any]) -> boo
     return resultado.scalar_one_or_none() is not None
 
 
-async def buscar_por_id(session: AsyncSession, lote_id: uuid.UUID) -> LoteValidade | None:
+async def buscar_por_id(
+    session: AsyncSession, lote_id: uuid.UUID
+) -> LoteValidade | None:
     return await session.get(LoteValidade, lote_id)
